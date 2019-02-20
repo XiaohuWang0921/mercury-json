@@ -1,0 +1,7 @@
+*.a
+*.exe
+test_*
+*.err
+*.init
+*.mh
+Mercury/*
