@@ -3,7 +3,7 @@
 :- module json.
 :- interface.
 
-:- import_module assoc_list, bool, /*char,*/ float, int, io, list, parsing_utils, string.
+:- import_module assoc_list, bool, float, int, io, list, parsing_utils, string.
 
 :- type json.
 
@@ -29,41 +29,37 @@
 	;	 cr
 	;	 lf.
 
-% Initialize a json.
+% Create a json.
 
-:- pred init_object(assoc_list(string, json)::in, json::out) is det.
+:- pred from_int(int::in, json::out) is det.
 
-:- pred init_array(list(json)::in, json::out) is det.
+:- pred from_float(float::in, json::out) is det.
 
-:- pred init_integer(int::in, json::out) is det.
+:- pred from_string(string::in, json::out) is det.
 
-:- pred init_float(float::in, json::out) is det.
+:- pred from_bool(bool::in, json::out) is det.
 
-:- pred init_string(string::in, json::out) is det.
+:- pred from_list(list(json)::in, json::out) is det.
 
-:- pred init_boolean(bool::in, json::out) is det.
+:- pred from_assoc_list(assoc_list(string, json)::in, json::out) is det.
 
-:- pred init_null(json::out) is det.
+:- pred from_nothing(json::out) is det.
 
-:- func init_object(assoc_list(string, json)::in) = (json::out) is det.
+:- func from_int(int::in) = (json::out) is det.
 
-:- func init_array(list(json)::in) = (json::out) is det.
+:- func from_float(float::in) = (json::out) is det.
 
-:- func init_integer(int::in) = (json::out) is det.
+:- func from_string(string::in) = (json::out) is det.
 
-:- func init_float(float::in) = (json::out) is det.
+:- func from_bool(bool::in) = (json::out) is det.
 
-:- func init_string(string::in) = (json::out) is det.
+:- func from_list(list(json)::in) = (json::out) is det.
 
-:- func init_boolean(bool::in) = (json::out) is det.
+:- func from_assoc_list(assoc_list(string, json)::in) = (json::out) is det.
 
-:- func init_null = (json::out) is det.
+:- func from_nothing = (json::out) is det.
 
 % Check the type of the content in a json.
-
-:- pred is_object(json::in) is semidet.
-
-:- pred is_list(json::in) is semidet.
 
 :- pred is_integer(json::in) is semidet.
 
@@ -73,35 +69,37 @@
 
 :- pred is_boolean(json::in) is semidet.
 
+:- pred is_array(json::in) is semidet.
+
+:- pred is_object(json::in) is semidet.
+
 :- pred is_null(json::in) is semidet.
 
 % Get the content of a json.
 
-:- func object(json::in) = (assoc_list(string, json)::out) is semidet.
+:- func as_int(json::in) = (int::out) is semidet.
 /*
-% Same warning as for object/1.
-:- func det_object(json) = assoc_list(string, json).
+:- func det_as_int(json) = int.
 */
-:- func array(json::in) = (list(json)::out) is semidet.
+:- func as_float(json::in) = (float::out) is semidet.
 /*
-% Same warning as for list/1.
-:- func det_list(json) = list(json).
+:- func det_as_float(json) = float.
 */
-:- func integer(json::in) = (int::out) is semidet.
+:- func as_string(json::in) = (string::out) is semidet.
 /*
-:- func det_integer(json) = int.
+:- func det_as_string(json) = string.
 */
-:- func float(json::in) = (float::out) is semidet.
+:- func as_bool(json::in) = (bool::out) is semidet.
 /*
-:- func det_float(json) = float.
+:- func det_as_bool(json) = bool.
 */
-:- func string(json::in) = (string::out) is semidet.
+:- func as_assoc_list(json::in) = (assoc_list(string, json)::out) is semidet.
 /*
-:- func det_string(json) = string.
+:- func det_as_assoc_list(json) = assoc_list(string, json).
 */
-:- func boolean(json::in) = (bool::out) is semidet.
+:- func as_list(json::in) = (list(json)::out) is semidet.
 /*
-:- func det_boolean(json) = bool.
+:- func det_as_list(json) = list(json).
 */
 % null has no content therefore no need for a predicate
 % to extract its content.
@@ -140,33 +138,33 @@
 	;		object(assoc_list(string, json))
 	;		null.
 
-init_integer(Int, integer(Int)).
+from_int(Int, integer(Int)).
 
-init_float(Float, float(Float)).
+from_float(Float, float(Float)).
 
-init_string(String, string(String)).
+from_string(String, string(String)).
 
-init_boolean(Bool, boolean(Bool)).
+from_bool(Bool, boolean(Bool)).
 
-init_array(List, array(List)).
+from_list(List, array(List)).
 
-init_object(AssocList, object(AssocList)).
+from_assoc_list(AssocList, object(AssocList)).
 
-init_null(null).
+from_nothing(null).
 
-init_integer(Int) = integer(Int).
+from_int(Int) = integer(Int).
 
-init_float(Float) = float(Float).
+from_float(Float) = float(Float).
 
-init_string(String) = string(String).
+from_string(String) = string(String).
 
-init_boolean(Bool) = boolean(Bool).
+from_bool(Bool) = boolean(Bool).
 
-init_array(List) = array(List).
+from_list(List) = array(List).
 
-init_object(AssocList) = object(AssocList).
+from_assoc_list(AssocList) = object(AssocList).
 
-init_null = null.
+from_nothing = null.
 
 is_integer(integer(_)).
 
@@ -176,33 +174,33 @@ is_string(string(_)).
 
 is_boolean(boolean(_)).
 
-is_list(array(_)).
+is_array(array(_)).
 
 is_object(object(_)).
 
 is_null(null).
 
-integer(integer(Int)) = Int.
+as_int(integer(Int)) = Int.
 
 % Implement det_integer/1!!!
 
-float(float(Float)) = Float.
+as_float(float(Float)) = Float.
 
 % Implement det_float/1!!!
 
-string(string(String)) = String.
+as_string(string(String)) = String.
 
 % Implement det_string/1!!!
 
-boolean(boolean(Bool)) = Bool.
+as_bool(boolean(Bool)) = Bool.
 
 % Implement det_boolean/1!!!
 
-array(array(List)) = List.
+as_list(array(List)) = List.
 
 % Implement det_list/1!!!
 
-object(object(Object)) = Object.
+as_assoc_list(object(Object)) = Object.
 
 % Implement det_object/1!!!
 
