@@ -1,0 +1,21 @@
+MAIN_TARGET=build
+
+.PHONY: build
+build:
+    $(MAKE) build
+
+.PHONY: depend
+depend:
+    $(MAKE) depend
+
+.PHONY: install
+install:
+    $(MAKE) install INSTALL_PREFIX=$(INSTALL_PREFIX)/third_party
+
+.PHONY: clean
+clean:
+    $(MAKE) clean
+
+.PHONY: realclean
+realclean:
+    $(MAKE) realclean
