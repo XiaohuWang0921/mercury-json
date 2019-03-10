@@ -127,7 +127,7 @@
 
 :- implementation.
 
-:- import_module pair.
+:- import_module pair, stream, stream.string_writer, string.builder.
 
 :- type json
 	--->	integer(int)
@@ -203,7 +203,7 @@ as_list(array(List)) = List.
 as_assoc_list(object(Object)) = Object.
 
 % Implement det_object/1!!!
-
+/*
 to_string(JSON, Format) = to_string(JSON, Format, 1).
 
 :- func to_string(json, format, int) = string.
@@ -242,6 +242,89 @@ to_string(object(AssocList), Format @ format(multiline(Indent, Newline), _), Lay
 		)
 	), AssocList, "") ++ newline_string(Newline) ++ from_char_list(duplicate(Indent * (Layer - 1), ' ')) ++ "}".
 to_string(null, _, _) = "null".
+*/
+
+to_string(JSON, Format) = to_string(Output) :-
+	put_json(JSON, Format, 1, init, Output).
+
+:- pred put_json(json::in, format::in, int::in, string.builder.state::di, string.builder.state::uo).
+
+put_json(integer(Int), _, _, !SB) :- put_int(handle, Int, !SB).
+put_json(float(Float), _, _, !SB) :- put_float(handle, Float, !SB).
+put_json(string(String), _, _, !SB) :-
+	put(handle, '"', !SB),
+	put(handle, String, !SB),
+	put(handle, '"', !SB).
+put_json(boolean(no), _, _, !SB) :- put(handle, "false", !SB).
+put_json(boolean(yes), _, _, !SB) :- put(handle, "true", !SB).
+put_json(array(List), Format @ format(_, compact), Layer, !SB) :-
+	put(handle, '[', !SB),
+	foldl2((pred(JSON::in, Comma::in, yes::out, !.SB0::di, !:SB0::uo) is det :-
+		(	Comma = no,
+			put_json(JSON, Format, Layer, !SB0)
+		;	Comma = yes,
+			put(handle, ", ", !SB0),
+			put_json(JSON, Format, Layer, !SB0)
+		)
+	), List, no, _, !SB),
+	put(handle, ']', !SB).
+put_json(array(List), Format @ format(_, multiline(Indent, Newline)), Layer, !SB) :-
+	put(handle, '[', !SB),
+	put(handle, newline_string(Newline), !SB),
+	foldl2((pred(JSON::in, Comma::in, yes::out, !.SB0::di, !:SB0::uo) is det :-
+		(	Comma = no,
+			put(handle, from_char_list(duplicate(Indent * Layer, ' ')), !SB0),
+			put_json(JSON, Format, Layer + 1, !SB0)
+		;	Comma = yes,
+			put(handle, ',', !SB0),
+			put(handle, newline_string(Newline), !SB0),
+			put(handle, from_char_list(duplicate(Indent * Layer, ' ')), !SB0),
+			put_json(JSON, Format, Layer + 1, !SB0)
+		)
+	), List, no, _, !SB),
+	put(handle, newline_string(Newline), !SB),
+	put(handle, from_char_list(duplicate(Indent * (Layer - 1), ' ')), !SB),
+	put(handle, ']', !SB).
+put_json(object(AssocList), Format @ format(compact, _), Layer, !SB) :-
+	put(handle, '{', !SB),
+	foldl2((pred((Key - JSON)::in, Comma::in, yes::out, !.SB0::di, !:SB0::uo) is det :-
+		(	Comma = no,
+			put(handle, '"', !SB0),
+			put(handle, Key, !SB0),
+			put(handle, """: ", !SB0),
+			put_json(JSON, Format, Layer, !SB0)
+		;	Comma = yes,
+			put(handle, ", """, !SB0),
+			put(handle, Key, !SB0),
+			put(handle, """: ", !SB0),
+			put_json(JSON, Format, Layer, !SB0)
+		)
+	), AssocList, no, _, !SB),
+	put(handle, '}', !SB).
+put_json(object(AssocList), Format @ format(multiline(Indent, Newline), _), Layer, !SB) :-
+	put(handle, '{', !SB),
+	put(handle, newline_string(Newline), !SB),
+	foldl2((pred((Key - JSON)::in, Comma::in, yes::out, !.SB0::di, !:SB0::uo) is det :-
+		(	Comma = no,
+			put(handle, from_char_list(duplicate(Indent * Layer, ' ')), !SB0),
+			put(handle, '"', !SB0),
+			put(handle, Key, !SB0),
+			put(handle, """: ", !SB0),
+			put_json(JSON, Format, Layer + 1, !SB0)
+		;	Comma = yes,
+			put(handle, ',', !SB0),
+			put(handle, newline_string(Newline), !SB0),
+			put(handle, from_char_list(duplicate(Indent * Layer, ' ')), !SB0),
+			put(handle, '"', !SB0),
+			put(handle, Key, !SB0),
+			put(handle, """: ", !SB0),
+			put_json(JSON, Format, Layer + 1, !SB0)
+		)
+	), AssocList, no, _, !SB),
+	put(handle, newline_string(Newline), !SB),
+	put(handle, from_char_list(duplicate(Indent * (Layer - 1), ' ')), !SB),
+	put(handle, '}', !SB).
+put_json(null, _, _, !SB) :- put(handle, "null", !SB).
 
 :- func newline_string(newline) = string.
 

@@ -1,7 +1,9 @@
 *.a
+*.dll
 *.exe
-test_*
 *.err
 *.init
 *.mh
+lib*
 Mercury/*
+test_*
