@@ -23,6 +23,5 @@ As stated in the **Warning** section, this module is currently far from stable a
 * Better documentation for the code.
 * Deterministic versions of the `as_*` functions, which throw an exception if the data stored in the JSON structure is of a different type than the one to be extracted.
 * Functions for direct access of elements from a JSON array or object.
-* Improve of efficiency of the `to_string` function, which could make use of the module `string.builder` from the standard library.
 * Support for parsing more advanced integer literals (e.g. binary, octal and hexadecimal literals).
 * A more convenient way to specify the output format of JSON strings (e.g. by introducing a default format instead of having to specify it every single time).
