@@ -123,20 +123,20 @@
 :- pred json_parser(src::in, json::out, ps::in, ps::out) is semidet.
 
 % Parse a JSON string.
-:- pred parse_json_string(string::in, parse_result(json)::out) is cc_multi.
+:- pred parse_string(string::in, parse_result(json)::out) is cc_multi.
 
 :- implementation.
 
 :- import_module pair, stream, stream.string_writer, string.builder.
 
 :- type json
-	--->	integer(int)
-	;		float(float)
-	;		string(string)
-	;		boolean(bool)
-	;		array(list(json))
-	;		object(assoc_list(string, json))
-	;		null.
+	---> integer(int)
+	;	 float(float)
+	;	 string(string)
+	;	 boolean(bool)
+	;	 array(list(json))
+	;	 object(assoc_list(string, json))
+	;	 null.
 
 from_int(Int, integer(Int)).
 
